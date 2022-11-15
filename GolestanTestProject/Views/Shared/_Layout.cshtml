@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GolestanTestProject</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/GolestanTestProject.styles.css" asp-append-version="true" />
+    
+    <link rel="stylesheet" href="~/css/vuetify.css" />
+    
+    <link rel="stylesheet" href="~/css/materialdesignicons.min.css" />
+    
+    <script src="~/js/Vue.js"></script>
+    <script src="~/js/vuetify.js"></script>
+    <script src="~/js/axios.min.js"></script>
+    <script src="~/js/CallApi.js"></script>
+
+
+
+</head>
+<body>
+    
+    <div id="mainVueApp" style="text-align:right; direction:rtl">
+
+        <v-app>
+
+
+            <v-navigation-drawer right app>
+
+                <template>
+                    <v-card class="mx-auto"
+                            width="300">
+                        <v-list>
+                            <v-list-item>
+                                <v-list-item-icon>
+                                    <v-icon>mdi-home</v-icon>
+                                </v-list-item-icon>
+
+                                <v-list-item-title>Home</v-list-item-title>
+                            </v-list-item>
+
+                            <v-list-group :value="true"
+                                          prepend-icon="mdi-account-circle">
+                                <template v-slot:activator>
+                                    <v-list-item-title>Users</v-list-item-title>
+                                </template>
+
+                                @*<v-list-group :value="true"
+                                              no-action
+                                              sub-group>
+                                    <template v-slot:activator>
+                                        <v-list-item-content>
+                                            <v-list-item-title>Admin</v-list-item-title>
+                                        </v-list-item-content>
+                                    </template>
+
+                                    <v-list-item v-for="([title, icon], i) in admins"
+                                                 :key="i"
+                                                 link>
+                                        <v-list-item-title v-text="title"></v-list-item-title>
+
+                                        <v-list-item-icon>
+                                            <v-icon v-text="icon"></v-icon>
+                                        </v-list-item-icon>
+                                    </v-list-item>
+                                </v-list-group>*@
+
+                                <v-list-group no-action
+                                              :value="true"
+                                              sub-group>
+                                    <template v-slot:activator>
+                                        <v-list-item-content>
+                                            <v-list-item-title>Actions</v-list-item-title>
+                                        </v-list-item-content>
+                                    </template>
+
+                                    <v-list-item v-for="([title, icon, address], i) in cruds"
+                                                 :key="i"
+                                                 link
+                                                 @@click="theEvent(address)"
+                                                 active-class="highlighted"
+                                                 :class="isCurrentPage(address) ? 'highlighted' : ''">
+                                        <v-list-item-title v-text="title" link></v-list-item-title>
+
+                                        <v-list-item-icon>
+                                            <v-icon v-text="icon"></v-icon>
+
+                                        </v-list-item-icon>
+
+
+                                    </v-list-item>
+                                </v-list-group>
+                            </v-list-group>
+                        </v-list>
+                    </v-card>
+                </template>
+
+            </v-navigation-drawer>
+
+            <v-app-bar app
+                       color="deep-purple accent-4">
+
+
+
+
+                <v-tooltip v-model="show"
+                           bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                        <v-btn icon
+                               v-bind="attrs"
+                               v-on="on">
+                            <v-icon x-large
+                                    dark
+                                    @@click="Logout()">
+                                mdi-logout
+                            </v-icon>
+                        </v-btn>
+                    </template>
+                    <span>خروج</span>
+                </v-tooltip>
+
+
+                <v-spacer></v-spacer>
+
+
+
+            </v-app-bar>
+
+            <!-- Sizes your content based upon application components -->
+            <v-main>
+
+                <!-- Provides the application the proper gutter -->
+                <v-container fluid>
+                    @RenderBody()
+                    <!-- If using vue-router -->
+                    @*<router-view></router-view>*@
+                </v-container>
+
+            </v-main>
+
+            <v-footer app>
+                this is footer
+            </v-footer>
+
+
+        </v-app>
+
+        <v-snackbar v-model="snackAlert"
+                    :timeout="snackAlertTimeout"
+                    color="blue-grey">
+            {{ snackAlertMessage }}
+
+            @*<template v-slot:action="{ attrs }">
+                <v-btn color="red"
+                       text
+                       v-bind="attrs"
+                       @@click="snackbar = false">
+                    Close
+                </v-btn>
+            </template>*@
+        </v-snackbar>
+
+    </div>
+    @RenderSection("VueComponents", required: false)
+
+    <script>
+
+
+
+
+        var mainVueApp = new Vue({
+
+            el: "#mainVueApp",
+            vuetify: new Vuetify({
+                theme: { dark: true },
+                rtl: true
+            }),
+            mixins: [myMixin],
+            data: {
+                show:false,
+                snackAlert: true,
+                snackAlertTimeout: 3000,
+                snackAlertMessage:"",
+                
+                date: '1397/02/02',
+                collapseOnScroll: true,
+                datasource: {},
+                admins: [
+                    ['Management', 'mdi-account-multiple-outline'],
+                    ['Settings', 'mdi-cog-outline'],
+                ],
+                cruds: [
+                    ['باشگاه', 'mdi-home-modern', "/Home/Index"],
+                    ['سالن', 'mdi-home-map-marker', "/Home/salon"],
+                    ['رشته های ورزشی', 'mdi-dumbbell', "/Home/Sports"],
+                    //['تنظیمات بوفه', 'mdi-settings', "/Home/Buffet"],
+                    //['بوفه', 'mdi-hamburger', "/Home/BuffetShop"],
+                    ['کاربران', 'mdi-account', "/Home/Users"],
+                    ['نقش', 'mdi-account-circle', "/Home/Roles"],
+                    ['کمد', 'mdi-key', "/Home/Cabinet"],
+                    ['تراکنش', 'mdi-coin', '/Home/Transactions']
+
+                ],
+                nameRules: [
+                    v => !!v || 'لطفا اطلاعات مورد نظر را وارد کنید',
+
+                ],
+
+            },
+
+            methods: {
+                showSnackAlert: function (snackbarMessage) {
+                    this.snackAlert = true;
+                    this.snackAlertMessage = snackbarMessage;
+                },
+
+                theEvent: function (param) {
+                    //alert(param);
+                    window.location.href = param;
+                },
+                isCurrentPage: function (address) {
+                    return window.location.href.endsWith(address);
+                },
+                focusNext(e) {
+                    const inputs = Array.from(e.target.form.querySelectorAll('input[type="text"]'));
+                    const index = inputs.indexOf(e.target);
+
+                    if (index < inputs.length) {
+                        inputs[index + 1].focus();
+                    }
+                },
+                resetForm: function () {
+                    this.$refs.form.reset();
+                    this.$refs.form.resetValidation();
+                },
+                Logout: function () {
+                    //alert("logout");
+                    window.location.href = "/General/Logout";
+                },
+
+                GetTimeOfDate: function (val) {
+                    var dt = new Date(val);
+                    return dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+                }
+
+
+
+            }
+            //,
+            //components: {
+            //    DatePicker: VuePersianDatetimePicker
+            //}
+
+
+
+
+
+        });
+
+        function highliteTR(tr) {
+
+            let theRows = tr.parentNode.rows;
+            //alert(theRows.length);
+
+            for (let i = 0; i < theRows.length; i++) {
+                let ss = theRows[i];
+                ss.classList.remove("bg-info");
+
+            }
+            tr.classList.add("bg-info");
+
+            //theRows.forEach(function (item, index) {
+
+            //    alert(index);
+            //});
+
+
+        }
+                                    //mainVueApp.bar();
+    </script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

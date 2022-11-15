@@ -1,0 +1,268 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@*<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>*@
+<template>
+    <v-dialog v-model="dialogSalon"
+              persistent
+              max-width="600px"
+              content-class="my-custom-dialog">
+        <form>
+            <v-card>
+                <v-card-title>
+                    <span class="text-h5">ثبت شعبه</span>
+                </v-card-title>
+                <v-card-text>
+                    <v-container>
+                        <v-row>
+
+                            <v-col cols="12">
+                                <v-text-field label="نام شعبه*"
+                                              required
+                                              hint="نام شعبه را وارد کنید"
+                                              v-model="retailStore.name"
+                                              @@keydown.enter="focusNext"
+                                              :rules="nameRules"
+                                              autofocus></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="آدرس"
+                                              required
+                                              requiredhint="آدرس را وارد کنید"
+                                              v-model="retailStore.address"
+                                              :rules="nameRules"
+                                              @@keydown.enter="focusNext"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="آی پی"
+                                              required
+                                              requiredhint="آی پی را وارد کنید"
+                                              v-model="retailStore.ipaddress"
+                                              :rules="nameRules"
+                                              @@keydown.enter="focusNext"></v-text-field>
+                            </v-col>
+
+                            <v-col cols="12">
+                                <v-checkbox v-model="retailStore.isActive"
+                                            label="فعال"
+                                            hide-details>
+                                </v-checkbox>
+                            </v-col>
+
+
+                        </v-row>
+                    </v-container>
+
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="red darken-1"
+                           text
+                           @@click="dialogSalon = false">
+                        انصراف
+                    </v-btn>
+                    <v-btn color="green darken-1"
+                           text
+                           @@click="createSalon()">
+                        ثبت
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </form>
+    </v-dialog>
+    <v-card>
+        <v-toolbar color="primary"
+                   dark
+                   flat>
+            <v-icon>mdi-shopping</v-icon>
+            <v-toolbar-title></v-toolbar-title>
+            <v-btn class="white--text"
+                   color="green darken-1"
+                   depressed
+                   @@click="dialogSalon=true">
+                ثبت شعبه جدید
+            </v-btn>
+        </v-toolbar>
+
+        <v-row>
+            <v-col>
+                <v-card-text>
+                    <v-treeview activatable
+                                :items="items"
+                                @*item-key="id"*@
+                                @@update:active="test"
+                                return-object>
+                    </v-treeview>
+                </v-card-text>
+            </v-col>
+            <v-divider vertical></v-divider>
+            <v-col cols="12"
+                   md="6">
+                <v-card-text>
+                    <v-card class="mx-auto"
+                            max-width="344"
+                            outlined>
+
+                        <v-row>
+
+                            <v-col cols="12">
+                                <v-text-field label="نام شعبه*"
+                                              required
+                                              hint="نام شعبه را وارد کنید"
+                                              v-model="retailStoreRead.name"
+                                              @@keydown.enter="focusNext"
+                                              :rules="nameRules"
+                                              autofocus></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="آدرس"
+                                              required
+                                              requiredhint="آدرس را وارد کنید"
+                                              v-model="retailStoreRead.address"
+                                              :rules="nameRules"
+                                              @@keydown.enter="focusNext"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="آی پی"
+                                              required
+                                              requiredhint="آی پی را وارد کنید"
+                                              v-model="retailStoreRead.ipaddress"
+                                              :rules="nameRules"
+                                              @@keydown.enter="focusNext"></v-text-field>
+                            </v-col>
+
+                            <v-col cols="12">
+                                <v-checkbox v-model="retailStore.isActive"
+                                            label="فعال"
+                                            hide-details>
+                                </v-checkbox>
+                            </v-col>
+                            <v-col>
+
+                                
+
+                            </v-col>
+
+
+
+                        </v-row>
+
+
+
+
+                    </v-card>
+                </v-card-text>
+            </v-col>
+        </v-row>
+
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-btn text
+                   @@click="tree = []">
+                Reset
+            </v-btn>
+
+            <v-spacer></v-spacer>
+
+            <v-btn class="white--text"
+                   color="green darken-1"
+                   depressed>
+                Save
+                <v-icon right>
+                    mdi-content-save
+                </v-icon>
+            </v-btn>
+        </v-card-actions>
+    </v-card>
+
+
+
+</template>
+
+@section VueComponents{
+
+    <script>
+        var myMixin = {
+            data: {
+                dialog: false,
+                items: [],
+                dialogSalon: false,
+                retailStore: {
+                    name: "",
+                    address: "",
+                    isActive: true,
+                    ipaddress:""
+                },
+                retailStoreRead: {
+                    name: "",
+                    address: "",
+                    isActive: true,
+                    ipaddress:""
+
+                }
+
+
+
+            },
+            methods: {
+                GetAllRetails: async function() {
+                    model = {
+                        Model: null,
+                        Address: "/api/GolestanActivity/GetAll"
+                    };
+                    var res = await CallApi(model);
+                    this.items = res.data;
+
+
+                },
+                test: async function(item) {
+
+
+                    if (1 == 1) {
+
+
+                        //item[0].id
+
+                        model = {
+                            Model: { id: item[0].id }
+                            ,
+                            Address: "/api/GolestanActivity/GetRetailStore"
+                        };
+                        var res = await CallApi(model);
+                        this.retailStoreRead.name = res.data.name;
+                        this.retailStoreRead.address = res.data.address;
+                        this.retailStoreRead.isActive = res.data.isActive;
+                        this.retailStoreRead.ipaddress = res.data.ipaddress;
+                        
+
+                        //res.data
+                    }
+
+
+                    console.log(item)
+                },
+                createSalon: async function() {
+                    model = {
+                        Model: this.retailStore,
+                        Address: "/api/GolestanActivity/AddRetailStore"
+                    };
+                    var res = await CallApi(model);
+                    this.items = res.data;
+
+                    await this.GetAllRetails();
+                    this.dialogSalon = false;
+                }
+
+
+            },
+
+            async mounted() {
+                await this.GetAllRetails();
+            }
+        };
+    </script>
+}
